@@ -125,17 +125,6 @@ All colors MUST be HSL.
   }
 }
 
-@keyframes slideInTop {
-  0% {
-    transform: translateY(-50px);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
 @keyframes dash {
   from {
     stroke-dashoffset: 60;
