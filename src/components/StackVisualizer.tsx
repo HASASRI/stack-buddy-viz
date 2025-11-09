@@ -124,36 +124,46 @@ const StackVisualizer = () => {
                 </div>
               ) : (
                 // Linked List Representation
-                <div className="flex flex-col items-start gap-4">
-                  <div className="flex items-center gap-4">
-                    <span className="text-lg font-semibold text-foreground">top</span>
-                    <svg className="h-8 w-16" viewBox="0 0 64 32" fill="none">
-                      <path d="M2 16 L54 16 M54 16 L46 8 M54 16 L46 24" stroke="currentColor" strokeWidth="3" className="text-foreground"/>
+                <div className="flex flex-col items-center gap-6">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-semibold text-foreground">Top</span>
+                    <svg className="h-16 w-16" viewBox="0 0 64 64" fill="none">
+                      <path d="M10 10 L45 45 M45 45 L35 40 M45 45 L40 35" stroke="currentColor" strokeWidth="2.5" className="text-foreground"/>
                     </svg>
                   </div>
                   
-                  <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-1 overflow-x-auto pb-4">
                     {stack.slice().reverse().map((value, index) => (
-                      <div key={index} className="flex items-center gap-2">
-                        <div className="flex h-20 w-32 flex-col items-center justify-center rounded-lg border-4 border-foreground bg-card">
-                          <span className="text-2xl font-bold text-foreground">{value}</span>
-                        </div>
-                        {index < stack.length - 1 && (
-                          <div className="flex flex-col items-center">
-                            <svg className="h-12 w-8" viewBox="0 0 32 48" fill="none">
-                              <path d="M16 2 L16 38 M16 38 L8 30 M16 38 L24 30" stroke="currentColor" strokeWidth="3" className="text-foreground"/>
-                            </svg>
+                      <div key={index} className="flex items-center animate-scale-in">
+                        {/* Node with data and pointer sections */}
+                        <div className="flex border-4 border-foreground bg-card">
+                          {/* Data section */}
+                          <div className="flex h-20 w-24 items-center justify-center border-r-4 border-foreground">
+                            <span className="text-2xl font-bold text-foreground">{value}</span>
                           </div>
+                          {/* Pointer section */}
+                          <div className="relative flex h-20 w-12 items-center justify-center">
+                            {index < stack.length - 1 ? (
+                              <svg className="h-8 w-8" viewBox="0 0 32 32" fill="none">
+                                <path d="M4 16 L28 16 M28 16 L20 8 M28 16 L20 24" stroke="currentColor" strokeWidth="3" className="text-foreground"/>
+                              </svg>
+                            ) : (
+                              // NULL indicator - diagonal line
+                              <svg className="h-full w-full" viewBox="0 0 48 80" fill="none">
+                                <path d="M5 5 L43 75" stroke="currentColor" strokeWidth="3" className="text-foreground"/>
+                              </svg>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Arrow between nodes */}
+                        {index < stack.length - 1 && (
+                          <svg className="h-8 w-8 flex-shrink-0" viewBox="0 0 32 32" fill="none">
+                            <path d="M4 16 L28 16 M28 16 L20 8 M28 16 L20 24" stroke="currentColor" strokeWidth="3" className="text-foreground"/>
+                          </svg>
                         )}
                       </div>
                     ))}
-                    {stack.length > 0 && (
-                      <div className="flex items-center gap-2 ml-0">
-                        <div className="flex h-20 w-32 items-center justify-center rounded-lg border-4 border-foreground bg-muted">
-                          <span className="text-xl font-bold text-muted-foreground">NULL</span>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
               )}
