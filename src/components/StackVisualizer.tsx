@@ -4,12 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 
-type RepresentationType = "array" | "linkedlist";
+type RepresentationType = "stack" | "array" | "linkedlist";
 
 const StackVisualizer = () => {
   const [stack, setStack] = useState<number[]>([15, 25, 30, 50]);
   const [inputValue, setInputValue] = useState("");
-  const [representationType, setRepresentationType] = useState<RepresentationType>("array");
+  const [representationType, setRepresentationType] = useState<RepresentationType>("stack");
   const [peekMessage, setPeekMessage] = useState<string | null>(null);
   const [animatingIndex, setAnimatingIndex] = useState<number | null>(null);
   const [operation, setOperation] = useState<"push" | "pop" | null>(null);
@@ -94,6 +94,7 @@ const StackVisualizer = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-popover z-50">
+                <SelectItem value="stack">Stack</SelectItem>
                 <SelectItem value="array">Array</SelectItem>
                 <SelectItem value="linkedlist">Linked List</SelectItem>
               </SelectContent>
@@ -107,6 +108,27 @@ const StackVisualizer = () => {
             <div className="relative flex min-h-[400px] w-full max-w-3xl flex-col items-center justify-center rounded-xl border-4 border-foreground bg-card p-8 shadow-lg">
               {stack.length === 0 ? (
                 <p className="text-muted-foreground">Stack is empty</p>
+              ) : representationType === "stack" ? (
+                // Vertical Stack Representation (Green Boxes)
+                <div className="flex w-full max-w-md flex-col-reverse gap-2">
+                  {stack.map((value, index) => {
+                    const isTopElement = index === stack.length - 1;
+                    const isAnimating = operation === "pop" && isTopElement;
+                    
+                    return (
+                      <div
+                        key={`${value}-${index}`}
+                        className={`flex h-16 items-center justify-center rounded-lg bg-success text-2xl font-bold text-success-foreground shadow-md transition-all duration-500 ${
+                          isAnimating ? "opacity-0 translate-y-8 scale-75" : "opacity-100 translate-y-0 scale-100"
+                        } ${
+                          operation === "push" && isTopElement ? "animate-[slideInTop_0.5s_ease-out]" : ""
+                        }`}
+                      >
+                        {value}
+                      </div>
+                    );
+                  })}
+                </div>
               ) : representationType === "array" ? (
                 // Array Representation
                 <div className="flex flex-col items-center gap-8">
@@ -142,17 +164,11 @@ const StackVisualizer = () => {
                 </div>
               ) : (
                 // Linked List Representation
-                <div className="flex flex-col items-center gap-6">
-                  <div className="flex items-center gap-2">
+                <div className="flex flex-col items-center gap-6 w-full">
+                  <div className="flex items-center gap-2 self-start ml-8">
                     <span className="text-lg font-semibold text-foreground">Top</span>
-                    <svg className="h-16 w-16" viewBox="0 0 64 64" fill="none">
-                      <path d="M10 10 L45 45 M45 45 L35 40 M45 45 L40 35" stroke="currentColor" strokeWidth="2.5" className="text-foreground" 
-                        style={{
-                          animation: operation === "push" && animatingIndex === 0 ? "dash 0.5s ease-in-out" : "none",
-                          strokeDasharray: "60",
-                          strokeDashoffset: operation === "push" && animatingIndex === 0 ? "60" : "0"
-                        }}
-                      />
+                    <svg className="h-12 w-12" viewBox="0 0 48 48" fill="none">
+                      <path d="M8 8 L35 35 M35 35 L27 32 M35 35 L32 27" stroke="currentColor" strokeWidth="2.5" className="text-foreground"/>
                     </svg>
                   </div>
                   
