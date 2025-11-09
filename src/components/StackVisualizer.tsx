@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -11,6 +11,8 @@ const StackVisualizer = () => {
   const [inputValue, setInputValue] = useState("");
   const [representationType, setRepresentationType] = useState<RepresentationType>("array");
   const [peekMessage, setPeekMessage] = useState<string | null>(null);
+  const [animatingIndex, setAnimatingIndex] = useState<number | null>(null);
+  const [operation, setOperation] = useState<"push" | "pop" | null>(null);
 
   const handlePush = () => {
     const value = parseInt(inputValue);
@@ -18,10 +20,18 @@ const StackVisualizer = () => {
       toast.error("Please enter a valid number");
       return;
     }
-    setStack([...stack, value]);
-    setInputValue("");
-    setPeekMessage(null);
-    toast.success(`Pushed ${value} to stack`);
+    setOperation("push");
+    setAnimatingIndex(0);
+    setTimeout(() => {
+      setStack([...stack, value]);
+      setInputValue("");
+      setPeekMessage(null);
+      toast.success(`Pushed ${value} to stack`);
+      setTimeout(() => {
+        setOperation(null);
+        setAnimatingIndex(null);
+      }, 300);
+    }, 50);
   };
 
   const handlePop = () => {
@@ -30,9 +40,17 @@ const StackVisualizer = () => {
       return;
     }
     const poppedValue = stack[stack.length - 1];
-    setStack(stack.slice(0, -1));
-    setPeekMessage(null);
-    toast.success(`Popped ${poppedValue} from stack`);
+    setOperation("pop");
+    setAnimatingIndex(0);
+    setTimeout(() => {
+      setStack(stack.slice(0, -1));
+      setPeekMessage(null);
+      toast.success(`Popped ${poppedValue} from stack`);
+      setTimeout(() => {
+        setOperation(null);
+        setAnimatingIndex(null);
+      }, 300);
+    }, 400);
   };
 
   const handlePeek = () => {
@@ -128,42 +146,93 @@ const StackVisualizer = () => {
                   <div className="flex items-center gap-2">
                     <span className="text-lg font-semibold text-foreground">Top</span>
                     <svg className="h-16 w-16" viewBox="0 0 64 64" fill="none">
-                      <path d="M10 10 L45 45 M45 45 L35 40 M45 45 L40 35" stroke="currentColor" strokeWidth="2.5" className="text-foreground"/>
+                      <path d="M10 10 L45 45 M45 45 L35 40 M45 45 L40 35" stroke="currentColor" strokeWidth="2.5" className="text-foreground" 
+                        style={{
+                          animation: operation === "push" && animatingIndex === 0 ? "dash 0.5s ease-in-out" : "none",
+                          strokeDasharray: "60",
+                          strokeDashoffset: operation === "push" && animatingIndex === 0 ? "60" : "0"
+                        }}
+                      />
                     </svg>
                   </div>
                   
                   <div className="flex items-center gap-1 overflow-x-auto pb-4">
-                    {stack.slice().reverse().map((value, index) => (
-                      <div key={index} className="flex items-center animate-scale-in">
-                        {/* Node with data and pointer sections */}
-                        <div className="flex border-4 border-foreground bg-card">
-                          {/* Data section */}
-                          <div className="flex h-20 w-24 items-center justify-center border-r-4 border-foreground">
-                            <span className="text-2xl font-bold text-foreground">{value}</span>
+                    {stack.slice().reverse().map((value, index) => {
+                      const isTopElement = index === 0;
+                      const isAnimating = operation === "pop" && isTopElement;
+                      
+                      return (
+                        <div 
+                          key={`${value}-${index}`} 
+                          className={`flex items-center transition-all duration-500 ${
+                            isAnimating ? "opacity-0 -translate-y-8 scale-75" : "opacity-100 translate-y-0 scale-100"
+                          } ${
+                            operation === "push" && isTopElement ? "animate-[slideInRight_0.5s_ease-out]" : ""
+                          }`}
+                          style={{
+                            animation: operation === "push" && isTopElement ? "slideInRight 0.5s ease-out" : "none"
+                          }}
+                        >
+                          {/* Node with data and pointer sections */}
+                          <div className={`flex border-4 bg-card transition-all duration-300 ${
+                            isTopElement && !isAnimating ? "border-primary shadow-lg shadow-primary/50" : "border-foreground"
+                          }`}>
+                            {/* Data section */}
+                            <div className="flex h-20 w-24 items-center justify-center border-r-4 border-inherit">
+                              <span className={`text-2xl font-bold transition-colors duration-300 ${
+                                isTopElement && !isAnimating ? "text-primary" : "text-foreground"
+                              }`}>{value}</span>
+                            </div>
+                            {/* Pointer section */}
+                            <div className="relative flex h-20 w-12 items-center justify-center">
+                              {index < stack.length - 1 ? (
+                                <svg className="h-8 w-8" viewBox="0 0 32 32" fill="none">
+                                  <path 
+                                    d="M4 16 L28 16 M28 16 L20 8 M28 16 L20 24" 
+                                    stroke="currentColor" 
+                                    strokeWidth="3" 
+                                    className={`transition-colors duration-300 ${
+                                      isTopElement && !isAnimating ? "text-primary" : "text-foreground"
+                                    }`}
+                                  />
+                                </svg>
+                              ) : (
+                                // NULL indicator - diagonal line
+                                <svg className="h-full w-full" viewBox="0 0 48 80" fill="none">
+                                  <path 
+                                    d="M5 5 L43 75" 
+                                    stroke="currentColor" 
+                                    strokeWidth="3" 
+                                    className={`transition-colors duration-300 ${
+                                      isTopElement && !isAnimating ? "text-primary" : "text-foreground"
+                                    }`}
+                                  />
+                                </svg>
+                              )}
+                            </div>
                           </div>
-                          {/* Pointer section */}
-                          <div className="relative flex h-20 w-12 items-center justify-center">
-                            {index < stack.length - 1 ? (
-                              <svg className="h-8 w-8" viewBox="0 0 32 32" fill="none">
-                                <path d="M4 16 L28 16 M28 16 L20 8 M28 16 L20 24" stroke="currentColor" strokeWidth="3" className="text-foreground"/>
-                              </svg>
-                            ) : (
-                              // NULL indicator - diagonal line
-                              <svg className="h-full w-full" viewBox="0 0 48 80" fill="none">
-                                <path d="M5 5 L43 75" stroke="currentColor" strokeWidth="3" className="text-foreground"/>
-                              </svg>
-                            )}
-                          </div>
+                          
+                          {/* Arrow between nodes */}
+                          {index < stack.length - 1 && (
+                            <svg className="h-8 w-8 flex-shrink-0" viewBox="0 0 32 32" fill="none">
+                              <path 
+                                d="M4 16 L28 16 M28 16 L20 8 M28 16 L20 24" 
+                                stroke="currentColor" 
+                                strokeWidth="3" 
+                                className={`transition-colors duration-300 ${
+                                  isTopElement && !isAnimating ? "text-primary" : "text-foreground"
+                                }`}
+                                style={{
+                                  animation: operation === "push" && isTopElement ? "dash 0.5s ease-in-out 0.3s" : "none",
+                                  strokeDasharray: "40",
+                                  strokeDashoffset: "0"
+                                }}
+                              />
+                            </svg>
+                          )}
                         </div>
-                        
-                        {/* Arrow between nodes */}
-                        {index < stack.length - 1 && (
-                          <svg className="h-8 w-8 flex-shrink-0" viewBox="0 0 32 32" fill="none">
-                            <path d="M4 16 L28 16 M28 16 L20 8 M28 16 L20 24" stroke="currentColor" strokeWidth="3" className="text-foreground"/>
-                          </svg>
-                        )}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
