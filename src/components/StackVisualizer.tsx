@@ -86,19 +86,75 @@ const StackVisualizer = () => {
         <div className="grid gap-8 lg:grid-cols-2">
           {/* Stack Visualization */}
           <div className="flex flex-col items-center">
-            <div className="relative flex min-h-[400px] w-full max-w-md flex-col-reverse items-center justify-start rounded-xl border-4 border-foreground bg-card p-8 shadow-lg">
+            <div className="relative flex min-h-[400px] w-full max-w-3xl flex-col items-center justify-center rounded-xl border-4 border-foreground bg-card p-8 shadow-lg">
               {stack.length === 0 ? (
                 <p className="text-muted-foreground">Stack is empty</p>
-              ) : (
-                <div className="flex w-full flex-col-reverse gap-2">
-                  {stack.map((value, index) => (
-                    <div
-                      key={index}
-                      className="flex h-16 items-center justify-center rounded-lg bg-success text-2xl font-bold text-success-foreground shadow-md transition-all duration-300"
-                    >
-                      {value}
+              ) : representationType === "array" ? (
+                // Array Representation
+                <div className="flex flex-col items-center gap-8">
+                  <div className="flex items-center gap-4">
+                    <span className="text-lg font-semibold text-foreground">top</span>
+                    <div className="flex h-24 w-24 items-center justify-center rounded-lg border-4 border-foreground bg-card text-2xl font-bold text-foreground">
+                      {stack.length > 0 ? stack.length - 1 : "-"}
                     </div>
-                  ))}
+                  </div>
+                  
+                  <div className="flex flex-col gap-2">
+                    <div className="flex gap-0">
+                      {stack.map((value, index) => (
+                        <div
+                          key={index}
+                          className="flex h-20 w-20 items-center justify-center border-2 border-foreground bg-card text-xl font-bold text-foreground"
+                        >
+                          {value}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex gap-0">
+                      {stack.map((value, index) => (
+                        <div
+                          key={index}
+                          className="flex h-12 w-20 items-center justify-center text-lg font-semibold text-primary"
+                        >
+                          {index}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                // Linked List Representation
+                <div className="flex flex-col items-start gap-4">
+                  <div className="flex items-center gap-4">
+                    <span className="text-lg font-semibold text-foreground">top</span>
+                    <svg className="h-8 w-16" viewBox="0 0 64 32" fill="none">
+                      <path d="M2 16 L54 16 M54 16 L46 8 M54 16 L46 24" stroke="currentColor" strokeWidth="3" className="text-foreground"/>
+                    </svg>
+                  </div>
+                  
+                  <div className="flex flex-col gap-2">
+                    {stack.slice().reverse().map((value, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <div className="flex h-20 w-32 flex-col items-center justify-center rounded-lg border-4 border-foreground bg-card">
+                          <span className="text-2xl font-bold text-foreground">{value}</span>
+                        </div>
+                        {index < stack.length - 1 && (
+                          <div className="flex flex-col items-center">
+                            <svg className="h-12 w-8" viewBox="0 0 32 48" fill="none">
+                              <path d="M16 2 L16 38 M16 38 L8 30 M16 38 L24 30" stroke="currentColor" strokeWidth="3" className="text-foreground"/>
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    {stack.length > 0 && (
+                      <div className="flex items-center gap-2 ml-0">
+                        <div className="flex h-20 w-32 items-center justify-center rounded-lg border-4 border-foreground bg-muted">
+                          <span className="text-xl font-bold text-muted-foreground">NULL</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
