@@ -9,11 +9,7 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
-  // 👇 ADD THIS LINE — sets correct base path for GitHub Pages
-  base: "/stack-buddy-viz/", // 🔥 your GitHub repo name here
-
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
-
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
